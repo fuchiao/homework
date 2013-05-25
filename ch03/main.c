@@ -13,7 +13,7 @@ int main()
 	}
 	printf("\n");
 
-	quick_sort(ary, sizeof(data) / sizeof(*data), cmp_reverse);
+	merge_sort(ary, sizeof(data) / sizeof(*data), cmp_reverse);
 
 	printf("after sorting: ");
 	for (i = 0; i < 10; i++)
