@@ -6,5 +6,6 @@ int cmp_reverse(void *, void *);
 void swap(void ** a, void ** b);
 void merge_sort(void **, int, DataCmpFunc);
 void quick_sort(void **, int, DataCmpFunc);
-void bubble_sort(void **, int , DataCmpFunc);
+void bubble_sort(void **, int, DataCmpFunc);
+int binary_search(void **, int, int);
 #endif

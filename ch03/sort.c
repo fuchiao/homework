@@ -86,3 +86,16 @@ void bubble_sort(void ** ary, int size, DataCmpFunc cmpFunc) {
 		}
 	}
 }
+int binary_search(void ** ary, int size, int target) {
+	int i = 0, j = size;
+
+	while (*(int *)(ary[(i + j) >> 1]) != target) {
+		if (i == j)
+			return -1;
+		if (*(int *)(ary[(i + j) >> 1]) > target)
+			j = (i + j) >> 1;
+		else 
+			i = (i + j) >> 1;
+	}
+	return (i + j) >> 1;
+}

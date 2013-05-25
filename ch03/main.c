@@ -20,5 +20,7 @@ int main()
 		printf("%d ", *(int *)ary[i]);
 	printf("\n");
 
+	printf("find 12: %d\n", binary_search(ary, 10, 12) + 1);
+
 	return 0;
 }
