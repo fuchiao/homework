@@ -1,0 +1,11 @@
+struct _Node;
+typedef struct _Node Node;
+typedef int (*PrintFuncPtr) (void *);
+void insert (struct _Node **, void *) ;
+void list (struct _Node *, PrintFuncPtr) ;
+int print_string(void *) ;
+int print_int(void *) ;
+typedef void (*VisitFunc) (void *, void *);
+void find_max (void *, void *) ;
+void summarize (void *, void *) ;
+void foreach (struct _Node *, VisitFunc, void *) ;

@@ -1,4 +1,6 @@
-all: main.c
-	gcc -lpthread main.c -o main.o && ./main.o
+all: main
+	./main
+main: main.c double_linked_list.c double_linked_list.h
+	gcc -g -o main main.c double_linked_list.c
 clean:
-	rm *.o
+	rm main
