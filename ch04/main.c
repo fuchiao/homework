@@ -1,25 +1,52 @@
-#include "double_linked_list.h"
+#include "locker.h"
+#include "locker_pthread.h"
 #include <stdio.h>
-int main() {
-	int sum = 0, max = 0;
-	int input[] = {32, 10, 66, 25, 17};
-	int i;
-	Node * headPtr = NULL;
-	#if 0
-	insert(&headPtr, "John Titor");
-	insert(&headPtr, "Bill Gates");
-	insert(&headPtr, "Steve Jobs");
-	insert(&headPtr, "Morris Chang");
-	insert(&headPtr, "Gilbert Areanas");
-	list(headPtr, print_string);
-	#endif
-	for (i = 0; i < 5; i++) {
-		insert(&headPtr, (void *)input[i]);
-	}
-	list(headPtr, print_int);
-	foreach(headPtr, find_max, &sum);
-	foreach(headPtr, summarize, &max);
-	printf("MAX: %d, SUM: %d\n", max, sum);
+#include <time.h>
+#include <stdlib.h>
+typedef struct {
+	int index;
+	Locker * lockPtr;
+}DList;
 
+DList dlist_create(void * a, void * b, LockerCreateFuncPtr c) {
+	DList * ret = malloc(sizeof(DList));
+	if (c) {
+		ret->index = 0;
+		ret->lockPtr = c();
+	}
+	return *ret;
+}
+void * consumer(void *args) {
+	int delay = 0;
+	srand(time(NULL));
+	while (1) {
+		if (((DList *)args)->index > 0) {
+			locker_lock(((DList *)args)->lockPtr);
+			((DList *)args)->index -= 1;
+			printf("Consume 1, remaining %d\n", ((DList *)args)->index);
+			locker_unlock(((DList *)args)->lockPtr);
+			delay = rand() % 3;
+			sleep(delay);
+		}
+	}
+}
+void * producer(void *args) {
+	int delay = 0;
+	srand(time(NULL));
+	while (1) {
+		locker_lock(((DList *)args)->lockPtr);
+		((DList *)args)->index += 1;
+		printf("Produce 1, remaining %d\n", ((DList *)args)->index);
+		locker_unlock(((DList *)args)->lockPtr);
+		delay = rand() % 3;
+		sleep(delay);
+	}
+}
+int main() {
+	DList dlist  = dlist_create(NULL, NULL, locker_pthread_create);
+	pthread_t t1, t2;
+	pthread_create(&t1, NULL, &consumer, (void *)&dlist);
+	pthread_create(&t2, NULL, &producer, (void *)&dlist);
+	while (1) sleep(1);
 	return 0;
 }
