@@ -20,26 +20,34 @@ void * consumer(void *args) {
 	int delay = 0;
 	srand(time(NULL));
 	while (1) {
-		if (((DList *)args)->index > 0) {
-			locker_lock(((DList *)args)->lockPtr);
+		delay = rand() % 4;
+		locker_lock(((DList *)args)->lockPtr);	//enter critical section
+		for (; delay > 0; delay--) {
+			if (((DList *)args)->index == 0) {
+				printf("Consume nothing, remaining %d\n", ((DList *)args)->index);
+				break;
+			}
+			sleep(1);
 			((DList *)args)->index -= 1;
 			printf("Consume 1, remaining %d\n", ((DList *)args)->index);
-			locker_unlock(((DList *)args)->lockPtr);
-			delay = rand() % 3;
-			sleep(delay);
 		}
+		locker_unlock(((DList *)args)->lockPtr);	//leave critical section
+		sleep(1);
 	}
 }
 void * producer(void *args) {
 	int delay = 0;
 	srand(time(NULL));
 	while (1) {
-		locker_lock(((DList *)args)->lockPtr);
-		((DList *)args)->index += 1;
-		printf("Produce 1, remaining %d\n", ((DList *)args)->index);
-		locker_unlock(((DList *)args)->lockPtr);
-		delay = rand() % 3;
-		sleep(delay);
+		delay = rand() % 4;
+		locker_lock(((DList *)args)->lockPtr);	//enter critical section
+		for (; delay > 0; delay--) {
+			sleep(1);
+			((DList *)args)->index += 1;
+			printf("Produce 1, remaining %d\n", ((DList *)args)->index);
+		}
+		locker_unlock(((DList *)args)->lockPtr);	//leave critical section
+		sleep(1);
 	}
 }
 int main() {

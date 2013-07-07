@@ -17,33 +17,46 @@ DList dlist_create(void * a, void * b, LockerCreateFuncPtr c) {
 	return *ret;
 }
 void * consumer(void *args) {
-	int delay = 0;
+	int delay = 0, i;
 	srand(time(NULL));
 	while (1) {
-		if (((DList *)args)->index > 0) {
+		delay = rand() % 4;
+		for (i = 0; delay > i; i++) {
 			locker_nest_lock(((DList *)args)->lockPtr, 1);
-			((DList *)args)->index -= 1;
-			locker_nest_lock(((DList *)args)->lockPtr, 1);
-			printf("Consume 1, remaining %d\n", ((DList *)args)->index);
-			locker_nest_unlock(((DList *)args)->lockPtr, 1);
-			locker_nest_unlock(((DList *)args)->lockPtr, 1);
-			delay = rand() % 3;
-			sleep(delay);
+			sleep(1);
+			if (((DList *)args)->index > 0) {
+				((DList *)args)->index -= 1;
+				printf("Consume 1, remaining %d\n", ((DList *)args)->index);
+			}
+			else {
+				printf("Consume nothing, remaining %d\n", ((DList *)args)->index);
+			}
 		}
+		for (; i > 0; i--) {
+			sleep(1);
+			printf("Consume unlock, remaining %d\n", ((DList *)args)->index);
+			locker_nest_unlock(((DList *)args)->lockPtr, 1);
+		}
+		sleep(1);
 	}
 }
 void * producer(void *args) {
-	int delay = 0;
+	int delay = 0, i;
 	srand(time(NULL));
 	while (1) {
-		locker_nest_lock(((DList *)args)->lockPtr, 2);
-		((DList *)args)->index += 1;
-		locker_nest_lock(((DList *)args)->lockPtr, 2);
-		printf("Produce 1, remaining %d\n", ((DList *)args)->index);
-		locker_nest_unlock(((DList *)args)->lockPtr, 2);
-		locker_nest_unlock(((DList *)args)->lockPtr, 2);
-		delay = rand() % 3;
-		sleep(delay);
+		delay = rand() % 4;
+		for (i = 0; delay > i; i++) {
+			locker_nest_lock(((DList *)args)->lockPtr, 2);
+			sleep(1);
+			((DList *)args)->index += 1;
+			printf("Produce 1, remaining %d\n", ((DList *)args)->index);
+		}
+		for (; i > 0; i--) {
+			sleep(1);
+			printf("Produce unlock, remaining %d\n", ((DList *)args)->index);
+			locker_nest_unlock(((DList *)args)->lockPtr, 2);
+		}
+		sleep(1);
 	}
 }
 int main() {
